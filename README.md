@@ -1,6 +1,6 @@
 # 莺空社区 · 春夏桌宠
 
-基于 [dsh-pet](https://github.com/PC2005-cloud/dsh-pet) 二次开发的 Windows 透明桌宠。当前版本为 **v0.6.0-rc.3**，待发布候选版，不是上游官方版本。
+基于 [dsh-pet](https://github.com/PC2005-cloud/dsh-pet) 二次开发的 Windows 透明桌宠。当前公开测试版为 **v0.6.0-rc.4**（Pre-release），不是上游官方版本。
 
 春夏和小白龙以桌面陪伴为主：空闲时播放随机动作，点击时回应，也可按本机Codex的可靠状态显示工作反馈。运行采用Electron透明窗口与本地WebM素材。
 
@@ -20,6 +20,8 @@
 |聊天、语音、自动漫游、原版模型碎碎念|当前独立版未接入或未启用，不作为已实现卖点|
 
 ## 安装与运行
+
+[下载 v0.6.0-rc.4 Windows 测试版](https://github.com/yingkong-dev/yingkong-chunxia-pet/releases/tag/v0.6.0-rc.4)。新用户默认关闭通透模式，可在菜单手动开启。
 
 目标为 Windows 10/11 x64；目前仅在 Windows 11 普通用户环境实测，Windows 10、其他机器和不同 DPI 尚未全部实测。下载项目 Release 中的便携压缩包，完整解压到可写目录（支持中文与空格），双击 **启动春夏桌宠.bat**。不要只提取 exe。右键可设置、退出；也可运行 **停止春夏桌宠.bat**。包未签名，尚不提供安装器。
 
