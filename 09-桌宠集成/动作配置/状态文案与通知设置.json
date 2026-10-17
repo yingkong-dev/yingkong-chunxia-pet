@@ -5,5 +5,5 @@
   "interruptedErrors": true,
   "approval": true,
   "quota": true,
-  "policy": "unfocused"
+  "policy": "always"
 }

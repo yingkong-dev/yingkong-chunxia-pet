@@ -29,6 +29,6 @@ async function main(){
  }
  const s=JSON.parse(fs.readFileSync(path.join(profile,'运行状态.json')));let gone=false;for(let n=0;n<30;n++){try{process.kill(s.pid,0);}catch(e){if(e.code==='ESRCH'){gone=true;break;}}await wait(250);}assert(gone,'host process not released');result.hostReleased=true;
  let helperGone=false;for(let n=0;n<30;n++){try{process.kill(helperPid,0);}catch(e){if(e.code==='ESRCH'){helperGone=true;break;}}await wait(250);}assert(helperGone,'Electron helper process not released');result.helperReleased=true;
- fs.writeFileSync(reportFile,JSON.stringify(result,null,2));console.log(JSON.stringify(result,null,2));
+ result.artifactDigest=require('./integrity.cjs').artifactDigest(bundle);fs.writeFileSync(reportFile,JSON.stringify(result,null,2));console.log(JSON.stringify(result,null,2));
 }
 main().catch(e=>{fs.mkdirSync(path.dirname(reportFile),{recursive:true});fs.writeFileSync(reportFile,JSON.stringify({status:'FAIL',error:e.message},null,2));console.error(e.message);process.exitCode=1;});

@@ -1,12 +1,12 @@
 {
   "name": "chunxia-runtime-deps",
-  "version": "0.6.0-rc.1",
+  "version": "0.6.0-rc.2",
   "lockfileVersion": 3,
   "requires": true,
   "packages": {
     "": {
       "name": "chunxia-runtime-deps",
-      "version": "0.6.0-rc.1",
+      "version": "0.6.0-rc.2",
       "dependencies": {
         "@electron-internal/extract-zip": "1.0.5",
         "@electron/get": "5.1.0"

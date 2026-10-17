@@ -1,10 +1,12 @@
 {
   "name": "yingkong-chunxia-pet",
-  "version": "0.6.0-rc.1",
+  "version": "0.6.0-rc.2",
   "private": true,
   "description": "莺空社区 · 春夏桌宠，基于 dsh-pet 的 Windows standalone 衍生版",
   "license": "MIT",
-  "engines": {"node": ">=24.19.0 <25"},
+  "engines": {
+    "node": ">=24.19.0 <25"
+  },
   "scripts": {
     "start": "node scripts/start.cjs",
     "stop": "node scripts/start.cjs --stop",
@@ -13,5 +15,8 @@
     "build": "node scripts/build.cjs",
     "release:check": "node scripts/release-check.cjs"
   },
-  "devDependencies": {"electron": "43.8.0", "playwright-core": "1.63.0"}
+  "devDependencies": {
+    "electron": "43.8.0",
+    "playwright-core": "1.63.0"
+  }
 }

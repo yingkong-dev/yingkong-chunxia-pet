@@ -25,7 +25,7 @@ async function launch(){
  for(const file of fs.readdirSync(path.join(ROOT,'09-桌宠集成','动作配置'))){if(file.endsWith('.json')&&!fs.existsSync(path.join(cfg,file)))fs.copyFileSync(path.join(ROOT,'09-桌宠集成','动作配置',file),path.join(cfg,file));}
  // Always load the currently shipped manifest; per-user settings survive upgrades.
  fs.copyFileSync(path.join(ROOT,'09-桌宠集成','动作配置','动作清单.json'),path.join(cfg,'动作清单.json'));
- const {compile}=require('./compile-config.cjs'),compiled=compile(ROOT),settings=JSON.parse(fs.readFileSync(path.join(cfg,'桌宠设置.json')));compiled.pack.pets[0].size=settings['尺寸'];compiled.pack.pets[0].position=settings['位置'];
+ const {compile,validateSettings}=require('./compile-config.cjs'),compiled=compile(ROOT);let settings;try{settings=JSON.parse(fs.readFileSync(path.join(cfg,'桌宠设置.json'),'utf8').replace(/^\uFEFF/,''));}catch{throw Error('用户桌宠设置.json损坏，原文件已保留；请修正配置后启动');}validateSettings(settings);compiled.pack.pets[0].size=settings['尺寸'];compiled.pack.pets[0].position=settings['位置'];
  if(process.env.CHUNXIA_VALIDATION==='1')for(const f of ['Codex监听设置.json','Codex额度设置.json','系统音频监听设置.json']){const v=JSON.parse(fs.readFileSync(path.join(cfg,f)));v.enabled=false;atomic(path.join(cfg,f),v);}
  const pet=path.join(home,'dsh-pet','pet');fs.mkdirSync(pet,{recursive:true});fs.cpSync(path.join(ROOT,'09-桌宠集成','动作配置','动作资源'),path.join(pet,'chunxia-animation'),{recursive:true});atomic(path.join(pet,'chunxia-config.json'),compiled.pack);atomic(path.join(home,'动作运行清单.json'),compiled.catalog);
  atomic(path.join(home,'dsh-pet','main-config.jsonc'),{pets:[{...compiled.pack.pets[0],id:'chunxia-hidden-main',display:'none'}],notificationsEnabled:false,whisperImageEnabled:false,chatImageEnabled:false});
