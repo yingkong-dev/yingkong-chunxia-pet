@@ -12,6 +12,8 @@ concurrency:
   cancel-in-progress: true
 jobs:
   verify:
+    # Private preparation is manual to avoid surprise paid runner usage from bot PRs.
+    if: github.event.repository.private == false || github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call'
     runs-on: windows-latest
     timeout-minutes: 25
     steps:

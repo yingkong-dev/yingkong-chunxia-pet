@@ -180,7 +180,7 @@ class CodexBridge extends EventEmitter{
     if(this.started||this.closed||!this.options.enabled)return;
     this.started=true;
     try{
-      this.watch=fs.watch(this.root,{recursive:true},(_event,name)=>{
+      this.watch=fs.watch(fs.realpathSync.native(path.resolve(this.root)),{recursive:true},(_event,name)=>{
         if(!name)return;const file=path.join(this.root,String(name));
         if(!file.endsWith('.jsonl')||this.pending.has(file)||this.pending.size>256)return;
         this.pending.set(file,setTimeout(()=>{this.pending.delete(file);this.enqueue(file);},120));

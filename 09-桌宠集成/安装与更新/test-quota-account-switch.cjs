@@ -30,3 +30,12 @@ test('真实文件监听清缓存并自动核验新身份；关闭自动刷新�
   await m.configure({autoRefresh:false});fs.appendFileSync(path.join(root,'auth.json'),' changed');await wait(()=>m.status==='auth_changed');await new Promise(r=>setTimeout(r,2200));assert.equal(calls,2);assert.equal(m.timer,null);
  }finally{m.stop();assert.equal(m.watcher,null);assert.equal(m.timer,null);fs.rmSync(root,{recursive:true,force:true});}
 });
+
+test('认证目录别名的监听使用真实长路径，不改认证上下文',()=>{
+ const parent=fs.mkdtempSync(path.join(os.tmpdir(),'春夏 认证别名-')),real=path.join(parent,'实际目录'),alias=path.join(parent,'目录别名'),cfg=path.join(parent,'设置.json');
+ fs.mkdirSync(real);fs.symlinkSync(real,alias,process.platform==='win32'?'junction':'dir');fs.writeFileSync(cfg,JSON.stringify({codexHome:alias}));
+ const original=fs.watch;let seen;const watcher=new (require('node:events').EventEmitter)();watcher.close=()=>{};
+ fs.watch=(target)=>{seen=target;return watcher;};const m=new QuotaMonitor({settingsPath:cfg});
+ try{m.watchAuth();assert.equal(seen,fs.realpathSync.native(real));assert.notEqual(seen,alias);assert.equal(m.cfg.codexHome,alias);}
+ finally{m.stop();fs.watch=original;fs.rmSync(parent,{recursive:true,force:true});}
+});

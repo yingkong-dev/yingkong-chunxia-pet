@@ -70,16 +70,16 @@ test('真实文件IO模拟：中文空格路径/增量/半行/截断/轮转/关�
  let online=true;const b=new CodexBridge({root:dir,settingsPath:path.join(dir,'设置.json'),checkClient:async()=>online});
  try{
   await b.start();assert.equal(b.connection,'会话记录监听中（部分支持）');
-  const start=record('task_started');fs.appendFileSync(file,start.slice(0,-1));await b.read(file,false);assert.equal(b.stats.accepted,0);
+  const start=record('task_started');fs.appendFileSync(file,start.slice(0,-1));b.enqueue(file,false);await b.serial;assert.equal(b.stats.accepted,0);
   fs.appendFileSync(file,'\n');await wait(300);await b.serial;assert.equal(b.snapshot().state,'running');
-  const offset=b.files.get(file).offset;await b.read(file,false);assert.equal(b.files.get(file).offset,offset);assert.equal(b.stats.accepted,1);
-  fs.appendFileSync(file,record('task_complete'));await b.read(file,false);assert.equal(b.snapshot().state,'completed');
+  const offset=b.files.get(file).offset;b.enqueue(file,false);await b.serial;assert.equal(b.files.get(file).offset,offset);assert.equal(b.stats.accepted,1);
+  fs.appendFileSync(file,record('task_complete'));b.enqueue(file,false);await b.serial;assert.equal(b.snapshot().state,'completed');
   await b.configure({enabled:false});assert.equal(b.watch,null);assert.equal(b.timer,null);
   await b.configure({enabled:true});assert.ok(b.watch);
-  fs.writeFileSync(file,header);await b.read(file,false);assert.ok(b.stats.rotations>=1);
-  fs.renameSync(file,file+'.old');fs.writeFileSync(file,header+record('task_started','t2'));await b.read(file,false);assert.equal(b.snapshot().state,'running');
-  online=false;await b.recover();assert.equal(b.current.state,'unknown');
-  online=true;await b.recover();assert.equal(b.current.state,'running');fs.appendFileSync(file,record('task_complete','t2'));await b.read(file,false);assert.equal(b.snapshot().state,'completed');
+  fs.writeFileSync(file,header);b.enqueue(file,false);await b.serial;assert.ok(b.stats.rotations>=1);
+  fs.renameSync(file,file+'.old');fs.writeFileSync(file,header+record('task_started','t2'));b.enqueue(file,false);await b.serial;assert.equal(b.snapshot().state,'running');
+  online=false;await b.recover();await b.serial;assert.equal(b.current.state,'unknown');
+  online=true;await b.recover();await b.serial;assert.equal(b.current.state,'running');fs.appendFileSync(file,record('task_complete','t2'));b.enqueue(file,false);await b.serial;assert.equal(b.snapshot().state,'completed');
   b.stop();assert.equal(b.pending.size,0);assert.equal(b.watch,null);
  }finally{b.stop();await b.serial;await wait(150);fs.rmSync(dir,{recursive:true,force:true});}
 });
@@ -108,4 +108,13 @@ test('重启检查点不丢长任务；停机期间结束可补读；检查点�
   fs.appendFileSync(file,row('task_complete'));
   b=new CodexBridge({root:dir,checkpointPath:cp});await b.start();assert.equal(b.snapshot().state,'completed');
  }finally{b.stop();await b.serial;fs.rmSync(dir,{recursive:true,force:true});}
+});
+
+test('目录别名先解析真实路径再创建监听，避免Windows短路径原生断言',async()=>{
+ const parent=fs.mkdtempSync(path.join(os.tmpdir(),'春夏 路径别名-')),real=path.join(parent,'实际目录'),alias=path.join(parent,'目录别名');
+ fs.mkdirSync(real);fs.symlinkSync(real,alias,process.platform==='win32'?'junction':'dir');
+ const original=fs.watch;let seen;const watcher=new (require('node:events').EventEmitter)();watcher.close=()=>{};
+ fs.watch=(target)=>{seen=target;return watcher;};const b=new CodexBridge({root:alias});
+ try{await b.start();assert.equal(seen,fs.realpathSync.native(real));assert.notEqual(seen,alias);assert.equal(b.root,alias);}
+ finally{b.stop();fs.watch=original;fs.rmSync(parent,{recursive:true,force:true});}
 });

@@ -197,7 +197,7 @@ class QuotaMonitor extends EventEmitter{
  }
  watchAuth(){
   if(this.watcher||!this.cfg.codexHome)return;
-  try{this.watcher=fs.watch(this.cfg.codexHome,(_event,name)=>{if(String(name)==='auth.json'){
+  try{this.watcher=fs.watch(fs.realpathSync.native(path.resolve(this.cfg.codexHome)),(_event,name)=>{if(String(name)==='auth.json'){
     this.pendingIdentityRefresh=this.cfg.autoRefresh;this.invalidate('auth_changed');this.schedule(2000);
   }});this.watcher.on('error',()=>{this.invalidate('identity_unverified');this.watcher?.close();this.watcher=null;});}catch{}
  }
