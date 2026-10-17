@@ -1,0 +1,15 @@
+const test=require('node:test'),assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('node:fs'),path=require('node:path');
+function setup(){
+ const catalog={defaultIdle:'idle',idleMode:'random_once',idlePool:['idle'],statusActions:{start:'start',working:'work',completed:'done'},actions:[['idle',true,'自动'],['start',false,'菜单'],['work',true,'菜单'],['done',false,'菜单'],['click',false,'点击']].map(([id,loop,trigger])=>({id,name:id,loop,trigger,interruptible:true,duration:8}))};
+ const videos=()=>({currentTime:1,readyState:4,paused:false,ended:false,loop:false,error:null,src:'',style:{},addEventListener(){},getVideoPlaybackQuality(){return {totalVideoFrames:24};}});
+ class Sprite{playOnce(name){this.anim=name;this.once=true;this.switchTo(name,true);}switchTo(name,once){this.gen++;const v=this.front===0?this.videoA:this.videoB;Object.assign(v,{ended:false,paused:false,loop:!once,currentTime:0});}handleEnded(){}onClick(){}onPointerUp(){}dispose(){}}
+ const s=new Sprite();Object.assign(s,{pet:{assetRoot:'chunxia'},anim:'idle',once:true,front:0,gen:0,videoA:videos(),videoB:videos(),hitRect:{x:0,y:0,w:100,h:100},hit:{style:{}},size:100,ac:{signal:{}},dragState:{},assetBase:'file:///',facing:'left'});
+ const ctx={PetSprite:Sprite,sprites:[s],setTimeout:()=>1,clearTimeout(){},setInterval:()=>1,clearInterval(){},performance:{now:()=>0},console:{warn(){}},MutationObserver:class{observe(){}},document:{hidden:false},S:{ANIMATION_EXT:'.webm'}};ctx.window=ctx;ctx.addEventListener=()=>{};ctx.PetShared={mountContextMenu(){}};
+ vm.createContext(ctx);for(const f of ['action-policy.js','playback-health.js','action-addon.js'])vm.runInContext(fs.readFileSync(f==='action-addon.js'&&process.env.CHUNXIA_ACTION_TEST_SOURCE?process.env.CHUNXIA_ACTION_TEST_SOURCE:path.join(__dirname,f),'utf8'),ctx);
+ ctx.__chunxiaActionsReceive({revision:1,catalog,mirrorEnabled:false});let revision=0;
+ return {s,event(state,notify=true){ctx.__chunxiaCodexReceive({revision:++revision,state,notify,eventId:state,session:'test',turn:'one',options:{enabled:true,completionWave:true}});},end(){(s.front===0?s.videoA:s.videoB).ended=true;s.handleEnded();},click(){s.__chunxiaRequestAction('click','click');}};
+}
+test('开始→工作中，逻辑循环使用双缓冲完整单次播放',()=>{const x=setup();x.event('running');x.end();assert.equal(x.s.anim,'start');x.end();assert.equal(x.s.anim,'work');assert.equal(x.s.once,true);assert.equal(x.s.videoA.loop,false);for(let i=0;i<4;i++){x.end();assert.equal(x.s.anim,'work');}});
+test('完成等待当前片尾；idle到达不丢完成，完成只播一次',()=>{const x=setup();x.event('running');x.end();x.end();x.event('completed');x.event('idle',false);assert.equal(x.s.__chunxiaActionSnapshot().statusPhase,'completed');assert.equal(x.s.__chunxiaReturnTarget().name,'done');x.end();assert.equal(x.s.anim,'done');x.end();assert.equal(x.s.anim,'idle');});
+test('点击优先但保留待播完成，点击结束后播完成',()=>{const x=setup();x.click();x.event('completed');assert.equal(x.s.anim,'click');x.event('idle',false);x.end();assert.equal(x.s.anim,'done');});
+test('关闭监听清除待播完成，不触发伪成功',()=>{const x=setup();x.event('completed');x.event('failed');x.end();assert.equal(x.s.anim,'idle');});

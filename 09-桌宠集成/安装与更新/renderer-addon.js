@@ -114,6 +114,11 @@
       }
     };requestAnimationFrame(wait);
   }
+  prototype.__chunxiaRefreshReturn=function(){
+    if(!this.once||this.pending)return;
+    const target=this.__chunxiaReturnTarget?.(),warm=this.__returnWarm;
+    if(target&&(!warm||warm.url!==this.assetBase+encodeURIComponent(target.name)+(S.ANIMATION_EXT||'.webm')||warm.once!==target.once))warmIdle(this,this.anim,this.gen);
+  };
   prototype.switchTo=function(next,nextOnce){
     cancelReturnFade(this);
     if(singleIdle(this,this.animations.idle[0])){

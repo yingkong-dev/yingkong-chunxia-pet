@@ -1,6 +1,6 @@
 const cp=require('node:child_process'),path=require('node:path');const app=path.resolve(__dirname,'../09-桌宠集成/安装与更新');
-const files=['test-action-controls.cjs','test-codex-bridge.cjs','test-codex-quota.cjs','test-presentation.cjs','test-runtime-compat.cjs','probe-start-routing.cjs','test-system-audio.cjs','test-quota-account-switch.cjs','test-tongtou.cjs','test-playback-health.cjs','test-size-settings.cjs','test-playback-restart.cjs'];
+const files=['test-action-controls.cjs','test-codex-bridge.cjs','test-codex-quota.cjs','test-presentation.cjs','test-runtime-compat.cjs','probe-start-routing.cjs','test-system-audio.cjs','test-quota-account-switch.cjs','test-tongtou.cjs','test-playback-health.cjs','test-size-settings.cjs','test-playback-restart.cjs','test-status-animation.cjs'];
 const result=cp.spawnSync(process.execPath,['--test',...files],{cwd:app,stdio:'inherit'});if(result.status)process.exit(result.status||1);
 require('./compile-config.cjs').compile(path.resolve(__dirname,'..'));console.log('公开配置编译 PASS');
 const extra=cp.spawnSync(process.execPath,['--test',path.resolve(__dirname,'../tests/public.test.cjs')],{stdio:'inherit'});if(extra.status)process.exit(extra.status||1);
-const fs=require('node:fs'),out=path.resolve(__dirname,'../.build');fs.mkdirSync(out,{recursive:true});fs.writeFileSync(path.join(out,'test-report.json'),JSON.stringify({status:'PASS',moduleTests:108,publicTests:5,configuration:'PASS',realCodex:'NOT_TESTED_IN_PUBLIC_PROFILE'},null,2));
+const fs=require('node:fs'),out=path.resolve(__dirname,'../.build');fs.mkdirSync(out,{recursive:true});fs.writeFileSync(path.join(out,'test-report.json'),JSON.stringify({status:'PASS',moduleTests:112,publicTests:5,configuration:'PASS',realCodex:'NOT_TESTED_IN_PUBLIC_PROFILE'},null,2));

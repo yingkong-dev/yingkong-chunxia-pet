@@ -42,13 +42,14 @@
    statusPhase=value.notify===true&&(newTask||previous!=='running')?'start':'working';
   }else if(value.state==='completed'&&value.notify===true)statusPhase=value.options.completionWave===true&&stage('completed')?'completed':'idle';
   else if(value.state==='completed')statusPhase=statusPhase==='completed'?'completed':'idle';
-  else statusPhase='idle';
+  else if(!(value.state==='idle'&&statusPhase==='completed'))statusPhase='idle';
   for(const s of sprites){if(!ensure(s))continue;
+   s.__chunxiaRefreshReturn?.();
    if(statusPhase==='idle'){
     if(s.__actionPolicy.current?.source==='status'){if(waitBoundary(s))continue;s.__actionPolicy.release();resumeStatus(s);}
    }else if(!resumeStatus(s)){
-    // Transient start/completion never queue behind a manual/click action.
-    statusPhase=statusPhase==='start'?'working':statusPhase==='completed'?'idle':statusPhase;
+    // A real completion stays pending until the higher-priority action finishes.
+    if(statusPhase==='start')statusPhase='working';
    }
   }
  }
@@ -67,10 +68,10 @@
   const a=find(s.anim)||idle();p.request(a,a.name===idle().name?'idle':'auto');
   s.__actionBaseHit={...s.hitRect};s.__actionRecoveries=[];
   s.__chunxiaRequestAction=(name,source='auto')=>request(s,name,source);
-  s.__chunxiaIsOneShot=name=>p.current?.name===name?!p.current.loop:find(name)?.loop===false;
+  s.__chunxiaIsOneShot=name=>p.current?.name===name?(!p.current.loop||p.current.source==='status'):find(name)?.loop===false;
   s.__chunxiaIsLoop=name=>p.current?.name===name?p.current.loop:find(name)?.loop===true;
   s.__chunxiaReturnLoop=()=>stage(statusPhase==='start'?'working':statusPhase)?.loop?stage(statusPhase==='start'?'working':statusPhase).name:audioTarget()?.name||idle().name;
-  s.__chunxiaReturnTarget=()=>{const phase=statusPhase==='start'?'working':statusPhase,a=stage(phase);if(a?.loop)return {name:a.name,once:false};const audio=audioTarget();if(!a&&audio)return {name:audio.name,once:false};if(randomMode()){const n=reserveIdle(s);return n?{name:n.name,once:true}:null;}return {name:idle().name,once:false};};
+  s.__chunxiaReturnTarget=()=>{const phase=statusPhase==='start'?'working':statusPhase,a=stage(phase);if(a)return {name:a.name,once:true};const audio=audioTarget();if(!a&&audio)return {name:audio.name,once:false};if(randomMode()){const n=reserveIdle(s);return n?{name:n.name,once:true}:null;}return {name:idle().name,once:false};};
   s.__chunxiaActionSnapshot=()=>({mode:p.manual?'manual':'auto',current:p.current,statusPhase,idleMode:config.catalog.idleMode,idlePool:config.catalog.idlePool,nextIdle:s.__idleNext||null,mirrorEnabled:config.mirrorEnabled,effectiveMirror:!!(config.mirrorEnabled&&find(s.anim)?.mirror),error:s.__actionError||null,playback:videoHealth(s),recovery:s.__actionRecovery||null,retryAt:s.__actionRetryAt||null,queueLength:0,trace:p.trace.slice(-12)});
   const watch=s.__actionProgress=new window.ChunxiaPlaybackHealth.ProgressWatch();
   s.__actionWatchTimer=setInterval(()=>{if(!owned.has(s))return;const h=videoHealth(s),now=performance.now();const reason=watch.observe({...h,key:s.gen+'|'+s.front+'|'+s.anim,suspended:s.dragState.active||!!s.__returnFade||document.hidden},now);
@@ -130,7 +131,9 @@
   try{
    if(randomOnce){s.__idleLast=a.id;s.__idleNext=null;s.anim=a.name;s.once=true;s.switchTo(a.name,true);}
    else if(beforeSource==='idle'&&result==='same'&&!a.loop){s.anim=a.name;s.once=true;s.switchTo(a.name,true);}
-   else if(a.loop){s.anim=a.name;s.once=false;s.switchTo(a.name,false);}
+   // Decode work loops through the existing two-buffer single-play path.
+   // Native VP9-alpha loop rewind repeatedly failed with MEDIA_ERR_DECODE on Windows.
+   else if(a.loop){s.anim=a.name;s.once=source==='status';s.switchTo(a.name,s.once);}
    else basePlay.call(s,a.name);
    mirror(s);arm(s,a);return true;
   }catch{recover(s,'动作切换异常');return false;}
@@ -158,8 +161,7 @@
   s.__actionRecovery.strategy='reload';
   s.__actionRecoveries.push(now);clearTimeout(s.__actionGuard);clearTimeout(s.__actionStallTimer);
   s.__actionPolicy.release();s.pending=null;++s.gen;s.anim='';s.pendingSquash=false;s.__returnWarm=null;
-  if(statusPhase==='start')statusPhase='working';if(statusPhase==='completed')statusPhase='idle';
-  resumeStatus(s);s.__actionError=reason;
+  resumeStatus(s,true);s.__actionError=reason;
  }
  proto.playOnce=function(name){if(this.pet.assetRoot!=='chunxia'||!config)return basePlay.call(this,name);if(randomMode()&&name===idle().name&&!this.__actionSource){if(this.__actionRestoringDrag||waitBoundary(this))return true;return resumeStatus(this);}return request(this,name,this.__actionSource||'auto');};
  proto.onClick=function(){if(!ensure(this))return baseClick.call(this);this.__actionSource='click';try{return baseClick.call(this);}finally{this.__actionSource=null;}};
