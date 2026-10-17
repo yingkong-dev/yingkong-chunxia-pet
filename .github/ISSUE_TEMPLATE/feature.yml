@@ -7,3 +7,8 @@ body:
       label: 使用场景、当前问题与建议
     validations:
       required: true
+  - type: textarea
+    id: interaction
+    attributes:
+      label: 预期交互与素材需求
+      description: 是否需要新动画，是否影响现有功能？不要上传无授权素材。
