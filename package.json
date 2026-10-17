@@ -16,7 +16,7 @@
     "release:check": "node scripts/release-check.cjs"
   },
   "devDependencies": {
-    "electron": "43.8.0",
+    "electron": "44.7.2",
     "playwright-core": "1.63.0"
   }
 }
