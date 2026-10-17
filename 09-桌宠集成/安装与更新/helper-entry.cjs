@@ -5,6 +5,7 @@ app.setAppUserModelId('Yingkong.Chunxia.DesktopPet');
 const fs=require('node:fs');
 const path=require('node:path');
 const http=require('node:http');
+require('./media-response.cjs').install(require('electron').protocol);
 const dir=__dirname;
 const official=process.env.CHUNXIA_OFFICIAL_MAIN;
 if (!official || !fs.existsSync(official)) throw new Error('春夏：官方宿主入口缺失');
@@ -204,7 +205,7 @@ app.on('browser-window-created',(_event,win)=>{
           if(snapshot?.ready&&!snapshot.quota)sendQuota(win,quota.view());
           if(snapshot?.ready&&!snapshot.actions)sendActions(win);
           if(snapshot?.ready&&!snapshot.audio)sendAudio(win,audio.view());
-          const record={...snapshot,pid:process.pid,hostPid:Number(process.env.DSH_PET_HOST_PID),
+          const record={...snapshot,mediaBridge:{...require('./media-response.cjs').stats},pid:process.pid,hostPid:Number(process.env.DSH_PET_HOST_PID),
             timestamp:new Date().toISOString(),bounds:win.getBounds(),visible:win.isVisible(),
             alwaysOnTop:win.isAlwaysOnTop(),userData:app.getPath('userData')};
           fs.writeFileSync(statusPath+'.tmp',JSON.stringify(record,null,2),'utf8');
