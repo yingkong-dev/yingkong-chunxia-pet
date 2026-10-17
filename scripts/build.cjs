@@ -13,7 +13,7 @@ function main(){
  const out=path.join(root,'dist','yingkong-chunxia-pet-win-x64');if(fs.existsSync(out))throw Error('构建目录存在，请归档旧构建目录后重试');fs.mkdirSync(out,{recursive:true});
  // Whitelist stage: never copy local profiles, logs, root node_modules, or Git history.
  for(const n of ['scripts','LICENSES','docs'])fs.cpSync(path.join(root,n),path.join(out,n),{recursive:true});
- for(const n of ['package.json','README.md','LICENSE','NOTICE.md','assets-manifest.json','upstream.json','启动春夏桌宠.bat','停止春夏桌宠.bat'])fs.copyFileSync(path.join(root,n),path.join(out,n));
+ for(const n of ['package.json','README.md','LICENSE','NOTICE.md','CHANGELOG.md','assets-manifest.json','upstream.json','启动春夏桌宠.bat','停止春夏桌宠.bat'])fs.copyFileSync(path.join(root,n),path.join(out,n));
  const target=path.join(out,'09-桌宠集成');fs.cpSync(path.join(root,'09-桌宠集成','动作配置'),path.join(target,'动作配置'),{recursive:true});
  const ta=path.join(target,'安装与更新');fs.mkdirSync(ta,{recursive:true});for(const n of fs.readdirSync(app)){if(/\.(?:js|cjs|mjs|ps1|png)$/.test(n)&&!n.startsWith('test-')&&!n.startsWith('probe-'))fs.copyFileSync(path.join(app,n),path.join(ta,n));}
  fs.cpSync(path.join(app,'音频工具'),path.join(ta,'音频工具'),{recursive:true});
