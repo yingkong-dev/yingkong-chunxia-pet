@@ -2,7 +2,7 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),os=require('node:os');
 const C=require('./tongtou-core.js'),{TongtouSettings}=require('./tongtou-settings.cjs'),cfg=C.settings();
 const near=(a,b)=>assert.ok(Math.abs(a-b)<.000001,`${a} != ${b}`);
-test('默认关闭、800ms，两端比例与需求一致',()=>{assert.equal(cfg.enabled,false);assert.equal(cfg.cycleMs,800);assert.deepEqual(C.extrema(cfg),[{x:1.12,y:.85},{x:.94,y:1.1}]);});
+test('默认关闭、800ms，两端比例与需求一致',()=>{assert.equal(cfg.enabled,false);assert.equal(new TongtouSettings(path.join(__dirname,'..','动作配置','通透模式设置.json')).cfg.enabled,false);assert.equal(cfg.cycleMs,800);assert.deepEqual(C.extrema(cfg),[{x:1.12,y:.85},{x:.94,y:1.1}]);});
 test('完整800ms=压扁拉长压扁；半周期400ms且无独立正常状态',()=>{for(const [t,x,y]of [[0,1.12,.85],[400,.94,1.1],[800,1.12,.85],[1200,.94,1.1]]){const a=C.sample(t,cfg);near(a.x,x);near(a.y,y);}assert.equal(C.extrema(cfg).length,2);});
 test('时间轴连续单调、无过冲/正常比例停顿、两端平滑换向',()=>{
  let prev=C.sample(0,cfg);for(let t=1;t<=400;t++){const v=C.sample(t,cfg);assert.ok(v.x<=prev.x+1e-12&&v.y>=prev.y-1e-12);assert.ok(v.x>=.94-1e-9&&v.x<=1.12+1e-9&&v.y>=.85-1e-9&&v.y<=1.1+1e-9);assert.ok(Math.abs(v.x-prev.x)+Math.abs(v.y-prev.y)>1e-8);prev=v;}
