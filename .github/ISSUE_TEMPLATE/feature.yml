@@ -1,0 +1,9 @@
+name: 功能建议
+description: 说明希望解决的问题
+body:
+  - type: textarea
+    id: request
+    attributes:
+      label: 使用场景、当前问题与建议
+    validations:
+      required: true

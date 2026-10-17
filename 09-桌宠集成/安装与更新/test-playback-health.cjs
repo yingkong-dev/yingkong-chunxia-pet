@@ -1,0 +1,15 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
+const {ProgressWatch}=require('./playback-health.js');
+const v=(time,extra={})=>({key:'working-1',time,frames:Math.round(time*24),paused:false,pending:false,readyState:4,ended:false,error:null,...extra});
+test('持续监测长循环，跨过首个保护期且正常回卷不误恢复',()=>{const w=new ProgressWatch();for(let i=0;i<100;i++)assert.equal(w.observe(v(i%10,{frames:i*24}),i*1000),null);});
+test('真实故障结构：工作5.074秒意外暂停，5秒内被持续检测',()=>{const w=new ProgressWatch();w.observe(v(5.074,{paused:true}),100);assert.equal(w.observe(v(5.074,{paused:true}),4099),null);assert.match(w.observe(v(5.074,{paused:true}),5100),/暂停/);});
+test('paused=false但时钟冻结，无媒体事件也能发现',()=>{const w=new ProgressWatch();w.observe(v(2),0);assert.match(w.observe(v(2),5001),/时间/);});
+test('缓冲/解码错误/超时加载分别保留真实原因',()=>{let w=new ProgressWatch();w.observe(v(1,{readyState:2}),0);assert.match(w.observe(v(1,{readyState:2}),5001),/缓冲/);w=new ProgressWatch();assert.match(w.observe(v(0,{error:{code:3}}),0),/解码/);w=new ProgressWatch();w.observe(v(0,{pending:true}),0);assert.equal(w.observe(v(0,{pending:true}),10999),null);assert.match(w.observe(v(0,{pending:true}),11000),/加载/);});
+test('拖拽/隐藏期间不恢复，松手或新缓冲代次重新计时',()=>{const w=new ProgressWatch();w.observe(v(1),0);assert.equal(w.observe(v(1,{suspended:true}),30000),null);assert.equal(w.observe(v(1),31000),null);assert.equal(w.observe(v(1,{key:'working-2'}),40000),null);});
+test('实际恢复函数：暂停优先原进度play，重试上限后冷却自动重试而非永久冻结',()=>{
+ const source=fs.readFileSync(path.join(__dirname,'action-addon.js'),'utf8'),actual=source.slice(source.indexOf('function recover('),source.indexOf(' proto.playOnce='));
+ const driver=vm.runInNewContext(`(()=>{let now=100000,loaded=0,played=0,timer=null,statusPhase='working';const owned=new Set(),performance={now:()=>now},Date={now:()=>now};const ensure=()=>true,trace=(s,m)=>s.__actionError=m,clearTimeout=()=>{},setTimeout=(fn,ms)=>{timer={fn,ms};return timer;},resumeStatus=()=>loaded++;let h={time:5,paused:true,error:null,readyState:4,pending:false};const videoHealth=()=>h;const s={dragState:{active:false},__actionRecoveries:[],__actionPolicy:{release(){}},front:0,videoA:{play(){played++;return Promise.resolve();}},gen:1};owned.add(s);${actual}return{run:()=>recover(s,'fixture'),s,counts:()=>({played,loaded}),set:h2=>h={...h,...h2},advance:ms=>now+=ms,timer:()=>timer};})()`);
+ driver.run();assert.equal(driver.counts().played,1);assert.equal(driver.counts().loaded,0);
+ driver.set({paused:false,error:{code:3}});driver.advance(11000);driver.run();driver.advance(4000);driver.run();driver.advance(4000);driver.run();assert.equal(driver.s.__actionRecovery.strategy,'cooldown');assert.ok(driver.timer().ms>0);const retry=driver.timer();driver.advance(retry.ms);retry.fn();assert.equal(driver.counts().loaded,3);
+ let ended=0;driver.s.once=true;driver.s.handleEnded=()=>ended++;driver.set({ended:true,error:null});driver.run();assert.equal(ended,1);assert.equal(driver.s.__actionRecovery.strategy,'finish');
+});

@@ -1,0 +1,8 @@
+{
+  "enabled": false,
+  "autoRefresh": true,
+  "alerts": true,
+  "refreshSeconds": 600,
+  "lowThreshold": 30,
+  "criticalThreshold": 10
+}

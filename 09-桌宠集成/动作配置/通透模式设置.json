@@ -1,0 +1,9 @@
+{
+  "enabled": true,
+  "cycleMs": 500,
+  "intensity": 0.5,
+  "squashX": 1.12,
+  "squashY": 0.85,
+  "stretchX": 0.94,
+  "stretchY": 1.1
+}

@@ -1,0 +1,9 @@
+{
+  "randomTexts": true,
+  "systemNotifications": true,
+  "completed": true,
+  "interruptedErrors": true,
+  "approval": true,
+  "quota": true,
+  "policy": "unfocused"
+}

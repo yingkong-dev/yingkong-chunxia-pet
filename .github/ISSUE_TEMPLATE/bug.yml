@@ -1,0 +1,22 @@
+name: 问题反馈
+description: 报告可复现的问题，不提交凭证或完整私人日志
+body:
+  - type: markdown
+    attributes:
+      value: 请先移除 Token、账号信息、个人路径及会话正文。安全问题请按 SECURITY.md 私下报告。
+  - type: input
+    id: version
+    attributes:
+      label: 桌宠版本、Windows 版本和缩放
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: 复现步骤、实际结果与期望结果
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: 脱敏截图或错误摘要

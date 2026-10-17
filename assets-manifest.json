@@ -1,0 +1,96 @@
+{
+  "version": 1,
+  "author": "莺空社区",
+  "license": "CC-BY-NC-4.0",
+  "grant": "用户2026-10-17确认：母图GPT生成；允许公开与二创，禁止商用。动画来自用户提供的即梦视频；仅分发正式透明成品。",
+  "files": [
+    {
+      "name": "待机01",
+      "id": "chunxia_new_idle_dragon_play_20261016",
+      "file": "待机01.webm",
+      "sha256": "2c1633c75688bb1b0a2d5d2112a6eea633d9a11e50ed699517e7438099d92e8d",
+      "frames": 193,
+      "width": 640,
+      "height": 360,
+      "fps": 24,
+      "license": "CC-BY-NC-4.0"
+    },
+    {
+      "name": "点击回应",
+      "id": "chunxia_click_greeting_20261016",
+      "file": "点击回应.webm",
+      "sha256": "7c20d78df895b8bf6681338558231953af8299de3986ac63cdf2f5d5b7195ce2",
+      "frames": 193,
+      "width": 640,
+      "height": 360,
+      "fps": 24,
+      "license": "CC-BY-NC-4.0"
+    },
+    {
+      "name": "待机02",
+      "id": "chunxia_random_play_6525_20261016",
+      "file": "待机02.webm",
+      "sha256": "8ad06304fce739a519a4dcbd52496fdad0460ad407451585ca8ee601f779e634",
+      "frames": 193,
+      "width": 640,
+      "height": 360,
+      "fps": 24,
+      "license": "CC-BY-NC-4.0"
+    },
+    {
+      "name": "工作中",
+      "id": "chunxia_working_sword_refined_20261016",
+      "file": "工作中.webm",
+      "sha256": "9cae637586b4275c4988fdb299a12d9162b631e7797d5407faf55204b622c651",
+      "frames": 240,
+      "width": 640,
+      "height": 360,
+      "fps": 24,
+      "license": "CC-BY-NC-4.0"
+    },
+    {
+      "name": "任务完成",
+      "id": "chunxia_complete_trimmed_20261016",
+      "file": "任务完成.webm",
+      "sha256": "c785e72f81782dc66a553584f8a739be6b09f5eaaa5edaeb75af9697ab7e08a7",
+      "frames": 102,
+      "width": 640,
+      "height": 360,
+      "fps": 24,
+      "license": "CC-BY-NC-4.0"
+    },
+    {
+      "name": "音乐待机",
+      "id": "chunxia_audio_idle_music_20261016",
+      "file": "音乐待机.webm",
+      "sha256": "97ea690250ac2d8feb2a6441dbfbd6c9844b680daa4f723d0f302651e7990385",
+      "frames": 192,
+      "width": 640,
+      "height": 360,
+      "fps": 24,
+      "license": "CC-BY-NC-4.0"
+    },
+    {
+      "name": "任务开始",
+      "id": "chunxia_start_thinking_clean_20261017",
+      "file": "任务开始.webm",
+      "sha256": "4b8fa16f9d1a6a76fa531d72e0a91dc1d1c383e7a5ded93e8d015397ac885e7b",
+      "frames": 193,
+      "width": 640,
+      "height": 360,
+      "fps": 24,
+      "license": "CC-BY-NC-4.0"
+    },
+    {
+      "name": "待机03",
+      "id": "chunxia_random_play_9495_sides_clean_20261017",
+      "file": "待机03.webm",
+      "sha256": "84b7379bbbc43eb77cbf9a24e10c5e6f9657d763aaeb0b49b086252f95e788b3",
+      "frames": 192,
+      "width": 640,
+      "height": 360,
+      "fps": 24,
+      "license": "CC-BY-NC-4.0"
+    }
+  ]
+}

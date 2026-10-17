@@ -1,0 +1,51 @@
+name: Windows 验证与便携包
+on:
+  push:
+    branches: [main, stable]
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+permissions:
+  contents: read
+concurrency:
+  group: windows-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: windows-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24.19.0'
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12'
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm test
+      - run: npm run audit:public
+      - run: npm run build
+      - name: 实际 Alpha 解码
+        shell: pwsh
+        run: |
+          python -m venv .build/qa
+          .build/qa/Scripts/python.exe -m pip install imageio-ffmpeg==0.6.0
+          $ffmpeg = & .build/qa/Scripts/python.exe -c 'import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())'
+          .build/qa/Scripts/python.exe scripts/validate-media.py --ffmpeg $ffmpeg --out .build/media-report.json
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: 隔离桌面运行和正常退出
+        run: node scripts/smoke.cjs
+      - name: 通过技术门禁后打包
+        run: node scripts/package.cjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: verified-windows-${{ github.sha }}
+          path: |
+            dist/*.zip
+            dist/*.sha256
+          if-no-files-found: error
+          retention-days: 3

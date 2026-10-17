@@ -1,0 +1,42 @@
+name: 仅创建 Release 草稿
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 已由维护者创建并推送的版本 Tag（例如 v0.6.0-rc.1）
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  verify:
+    uses: ./.github/workflows/windows.yml
+  draft:
+    needs: verify
+    runs-on: windows-latest
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: 仅下载本次已验证产物
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run download $env:GITHUB_RUN_ID --name "verified-windows-$env:GITHUB_SHA" --dir artifacts
+      - name: 校验版本及 Tag，并创建草稿
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag }}
+        shell: pwsh
+        run: |
+          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          if ($env:RELEASE_TAG -cne "v$version") { throw 'Tag 与 package.json 版本不一致' }
+          $commit = git rev-parse "$($env:RELEASE_TAG)^{commit}"
+          if ($LASTEXITCODE -or $commit -ne $env:GITHUB_SHA) { throw 'Tag 必须对应本次已验证提交' }
+          $artifacts = Get-ChildItem artifacts -File
+          if (-not ($artifacts | Where-Object Extension -eq '.zip')) { throw '缺少已验证安装包' }
+          gh release create $env:RELEASE_TAG --draft --verify-tag --title "春夏桌宠 $version" --notes-file CHANGELOG.md @($artifacts.FullName)
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }

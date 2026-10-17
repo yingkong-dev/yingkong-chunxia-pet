@@ -1,0 +1,9 @@
+{
+  "enabled": false,
+  "type": "audio_idle",
+  "actionId": "chunxia_audio_idle_music_20261016",
+  "threshold": 0.012,
+  "offRatio": 0.6,
+  "attackMs": 2000,
+  "releaseMs": 5000
+}

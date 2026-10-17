@@ -1,0 +1,9 @@
+{
+  "name": "chunxia-runtime-deps",
+  "version": "0.6.0-rc.1",
+  "private": true,
+  "dependencies": {
+    "@electron/get": "5.1.0",
+    "@electron-internal/extract-zip": "1.0.5"
+  }
+}
