@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 已由维护者创建并推送的版本 Tag（例如 v0.6.0-rc.1）
+        description: 已由维护者创建并推送的版本 Tag（例如 v0.6.0-rc.3）
         required: true
         type: string
 permissions:
