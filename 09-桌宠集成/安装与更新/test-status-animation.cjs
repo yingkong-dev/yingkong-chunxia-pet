@@ -12,4 +12,4 @@ function setup(){
 test('开始→工作中，逻辑循环使用双缓冲完整单次播放',()=>{const x=setup();x.event('running');x.end();assert.equal(x.s.anim,'start');x.end();assert.equal(x.s.anim,'work');assert.equal(x.s.once,true);assert.equal(x.s.videoA.loop,false);for(let i=0;i<4;i++){x.end();assert.equal(x.s.anim,'work');}});
 test('完成等待当前片尾；idle到达不丢完成，完成只播一次',()=>{const x=setup();x.event('running');x.end();x.end();x.event('completed');x.event('idle',false);assert.equal(x.s.__chunxiaActionSnapshot().statusPhase,'completed');assert.equal(x.s.__chunxiaReturnTarget().name,'done');x.end();assert.equal(x.s.anim,'done');x.end();assert.equal(x.s.anim,'idle');});
 test('点击优先但保留待播完成，点击结束后播完成',()=>{const x=setup();x.click();x.event('completed');assert.equal(x.s.anim,'click');x.event('idle',false);x.end();assert.equal(x.s.anim,'done');});
-test('关闭监听清除待播完成，不触发伪成功',()=>{const x=setup();x.event('completed');x.event('failed');x.end();assert.equal(x.s.anim,'idle');});
+test('失败状态清除待播完成，不触发伪成功',()=>{const x=setup();x.event('completed');x.event('failed');x.end();assert.equal(x.s.anim,'idle');});
